@@ -1,0 +1,8 @@
+fastapi
+boto3
+pillow
+python-jose
+passlib[bcrypt]
+python-multipart
+numpy
+uvicorn

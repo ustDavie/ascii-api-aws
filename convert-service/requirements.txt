@@ -1,0 +1,6 @@
+
+pillow
+flask
+requests
+boto3
+numpy
