@@ -1,0 +1,97 @@
+{
+    "compatibilities": [
+        "EC2",
+        "FARGATE",
+        "MANAGED_INSTANCES"
+    ],
+    "containerDefinitions": [
+        {
+            "cpu": 0,
+            "environment": [
+                {
+                    "name": "DYNAMO_TABLE",
+                    "value": "/ascii-api/table-name"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "value": "ap-southeast-2"
+                }
+            ],
+            "environmentFiles": [],
+            "essential": true,
+            "image": "901444280953.dkr.ecr.ap-southeast-2.amazonaws.com/ascii-monitor-api:latest",
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/ascii-monitor-api",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            },
+            "mountPoints": [],
+            "name": "ascii-monitor",
+            "portMappings": [],
+            "systemControls": [],
+            "ulimits": [],
+            "volumesFrom": []
+        }
+    ],
+    "cpu": "1024",
+    "enableFaultInjection": false,
+    "executionRoleArn": "arn:aws:iam::901444280953:role/Execution-Role-CAB432-ECS",
+    "family": "ascii-monitor-api",
+    "memory": "3072",
+    "networkMode": "awsvpc",
+    "placementConstraints": [],
+    "registeredAt": "2025-10-28T11:34:30.642Z",
+    "registeredBy": "arn:aws:sts::901444280953:assumed-role/AWSReservedSSO_CAB432-STUDENT_f2baa6a2ba3c79c9/n11375370@qut.edu.au",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "revision": 1,
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "status": "ACTIVE",
+    "taskDefinitionArn": "arn:aws:ecs:ap-southeast-2:901444280953:task-definition/ascii-monitor-api:1",
+    "taskRoleArn": "arn:aws:iam::901444280953:role/Task-Role-CAB432-ECS",
+    "volumes": [],
+    "tags": [
+        {
+            "key": "qut-username",
+            "value": "n11375370@qut.edu.au"
+        }
+    ]
+}

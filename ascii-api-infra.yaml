@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Infrastructure as Code - ASCII API Cloud Application (ECS + SQS + DynamoDB)"
+
+Resources:
+  # -----------------------------
+  # ECS Cluster Definition
+  # -----------------------------
+  AsciiEcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: ascii-cluster-main
+      CapacityProviders:
+        - FARGATE
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+
+  # -----------------------------
+  # ECS Task Definition for API Service
+  # -----------------------------
+  AsciiApiTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: ascii-api
+      Cpu: 256
+      Memory: 512
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: arn:aws:iam::901444280953:role/ecsTaskExecutionRole
+      TaskRoleArn: arn:aws:iam::901444280953:role/ecsTaskExecutionRole
+      ContainerDefinitions:
+        - Name: ascii-api
+          Image: 901444280953.dkr.ecr.ap-southeast-2.amazonaws.com/ascii-api-api:latest
+          Essential: true
+          PortMappings:
+            - ContainerPort: 8000
+          Environment:
+            - Name: AWS_REGION
+              Value: ap-southeast-2
+            - Name: TABLE_NAME
+              Value: ascii-api-job-table
+            - Name: QUEUE_URL
+              Value: https://sqs.ap-southeast-2.amazonaws.com/901444280953/ascii-api-queue
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/ascii-api
+              awslogs-region: ap-southeast-2
+              awslogs-stream-prefix: ecs
+
+  # -----------------------------
+  # SQS Main Queue
+  # -----------------------------
+  AsciiJobQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ascii-api-queue
+      VisibilityTimeout: 60
+      MessageRetentionPeriod: 3600
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt AsciiDLQ.Arn
+        maxReceiveCount: 3
+
+  # -----------------------------
+  # SQS Dead Letter Queue
+  # -----------------------------
+  AsciiDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ascii-api-dlq
+      MessageRetentionPeriod: 1209600  # 14 days
+
+  # -----------------------------
+  # DynamoDB Table
+  # -----------------------------
+  AsciiJobTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ascii-api-job-table
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+Outputs:
+  ECSClusterName:
+    Description: Name of the ECS Cluster
+    Value: !Ref AsciiEcsCluster
+
+  TaskDefinitionFamily:
+    Description: ECS Task Definition Family
+    Value: !Ref AsciiApiTaskDefinition
+
+  QueueURL:
+    Description: SQS Queue URL
+    Value: !Ref AsciiJobQueue
+
+  DLQURL:
+    Description: Dead Letter Queue URL
+    Value: !Ref AsciiDLQ
+
+  DynamoDBTable:
+    Description: DynamoDB Table Name
+    Value: !Ref AsciiJobTable
